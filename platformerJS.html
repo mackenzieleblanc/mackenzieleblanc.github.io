@@ -477,7 +477,7 @@
             ctx.fillRect(canvas.width / 4, canvas.height / 6, canvas.width / 2, canvas.height / 2)
             ctx.fillStyle = 'black'
             ctx.font = '800% serif'
-            ctx.fillText("You're are dead", canvas.width / 4, canvas.height / 6 + canvas.height / 5, canvas.width / 16 * 14)
+            ctx.fillText("You are dead", canvas.width / 4, canvas.height / 6 + canvas.height / 5, canvas.width / 16 * 14)
             ctx.font = '500% serif'
             ctx.fillText("hit the any key to alive", canvas.width / 4, canvas.height / 6 + canvas.height / 3, canvas.width / 16 * 14)
             if (anyKeyPress) {
@@ -831,6 +831,8 @@
             collectableType = []
             collectableBounce = [0]
             collectableImages = []
+        function collectablesCollide () {
+                collectablesCollide = [6]
 
             setupGame()
         }

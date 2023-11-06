@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Super Amazing Clicker with Awesome Graphicz!!1!!!!1!!!!</title>
+  <style>
+    h1 {
+      padding: 100px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <center>
+    <h1> Directions: click to deposit your infinitely many shmoobles</h1>
+    <h1 id="scoreText"> shmoobles: <span id="shmooblecounter"> 0</span></h1>
+    <img id="shmooble"
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMfGT3XAz1R2-PC_4tTMRc0T597qJfg1ZzyJ66__mo-hp0RbRaLTb7QOv0yTHiW0vYCJw:https://static.wikia.nocookie.net/scrimblo/images/5/54/The_og_scrimblo.jpg/revision/latest%3Fcb%3D20211211030343&usqp=CAU">
+  </center>
+  <button id="tonic">Yubui's miracle tonic (<span id="price">15</span> shmoobles) </button>
+  <button id="autoClicker">Shmooble Jr. (<span id="autoClickerPrice">500 shmoobles</span>)</button>
+</body>
+
+</html>
+<script>
+  document.getElementById("shmooble").addEventListener("click", increaseScore)
+  document.getElementById("tonic").addEventListener("click", tonic)
+  document.getElementById("autoClicker").addEventListener("click", autoClicker)
+  var score = 0
+  var increase = 1
+  var ounceOfTonic = 0
+  var costOfTonic = 15
+  var costOfAutoClicker = 500
+  var childLaborSpeed = 250
+  
+  document.getElementById("shmooblecounter").innerText = score
+  function increaseScore() {
+      score = score + increase
+      document.getElementById("shmooblecounter").innerText = score
+     console.log(score)
+  }
+  
+    function tonic() {
+    if(score>=costOfTonic) {
+      score=score-costOfTonic
+      document.getElementById("shmooblecounter").innerText = score
+      ounceOfTonic=ounceOfTonic+1
+      increase = 0
+      increase = increase +(ounceOfTonic*5)
+      costOfTonic=costOfTonic*2
+      document.getElementById("price").innerText = costOfTonic
+    }
+   }
+   function autoClicker() {
+    if(score>=costOfAutoClicker) {
+      score=score-costOfAutoClicker
+      document.getElementById("shmooblecounter").innerText = score
+     
+      setInterval(increaseScore, childLaborSpeed)
+      
+      document.getElementById("autoClickerPrice").innerText = "sold out"
+    }
+   }
+   
+</script>
