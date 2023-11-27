@@ -27,7 +27,7 @@
 <script>
   document.getElementById("shmooble").addEventListener("click", increaseScore)
   document.getElementById("tonic").addEventListener("click", tonic)
-  document.getElementById("autoClicker").addEventListener("click", autoClickerOne)
+  document.getElementById("autoClicker").addEventListener("click", autoClicker)
   var score = 0
   var increase = 1
   var ounceOfTonic = 0
@@ -55,18 +55,14 @@
       document.getElementById("price").innerText = costOfTonic
     }
    }
-   function autoClickerOne() {
+   function autoClicker() {
     if(score>=500) {
         score=score-costOfAutoClicker
         document.getElementById("shmooblecounter").innerText = score
-       setInterval(autoClickerTwo, childLaborSpeed)
+       setInterval(autoClicker, childLaborSpeed)
+      
        document.getElementById("autoClickerPrice").innerText = "sold out"
    }
-   }
-   function autoClickerTwo(){
-      score = score + increase
-      document.getElementById("shmooblecounter").innerText = score
-     console.log(score)
    }
   
 </script>
