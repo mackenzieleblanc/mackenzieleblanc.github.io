@@ -1,18 +1,57 @@
 <!DOCTYPE html>
 <html>
-    <head>
-     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
-     <title>Bounce Box Bounce</title>
-    <style>
-     div {
-      width:50px;
-      height:50px;
-      background-color:red;   
-        }
-    </style>
-    </head>
-    <body>
-        <div id="box"> </div>
-    </body>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Bounce Box Bounce</title>
+  <style>
+    #box {
+      width: 50px;
+      height: 50px;
+      background-color: rgb(209, 156, 214);
+      position: absolute;
+      top: 100px;
+      left: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="box"> </div>
+</body>
+
 </html>
+<script>
+  document.getElementById("box").addEventListener("click", yip)
+
+  var topCoor = 100
+  var leftCoor = 100
+  var directionLeft = 100
+  var directionTop = 100
+  function yip(){
+    setInterval(moveBox,15)
+  }
+
+  function moveBox() {
+    if (leftCoor <= 0) {
+      directionLeft = 30
+    }
+    if (leftCoor > 1799) {
+      directionLeft = -30
+    }
+    if (topCoor <= 0){
+      directionTop = 30
+    }
+    if (topCoor > 840) {
+      directionTop = -30
+    }
+      leftCoor = leftCoor + directionLeft
+      topCoor = topCoor + directionTop
+      document.getElementById("box").style.left = leftCoor + "px";
+      document.getElementById("box").style.top = topCoor + "px";
+      console.log(leftCoor+","+topCoor)
+  }
+  
+
+</script>
