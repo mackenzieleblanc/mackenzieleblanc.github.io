@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>JS Bin</title>
+    <style>
+        #manone {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        #mantwo {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            top: 200px;
+            left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <img id="manone"
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRX69cUDosREGhEJ748ziCSOXY_vk5OopOln-XPstYKXNAKIfViwXDvS-0Zjk94zWohUOA:https://c8.alamy.com/comp/TW15GK/portrait-of-a-man-showing-thumbs-up-and-smiling-TW15GK.jpg&usqp=CAU">
+    <img id="mantwo"
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-1tcZ9AWzzwu277kA0NAaGBdohRFmt-r59Q:https://cdn.create.vista.com/api/media/small/20030237/stock-photo-cheerful-young-man-over-white&usqp=CAU">
+
+</body>
+</html>
+<script>
+    document.addEventListener("keydown", manonemoves)
+    document.addEventListener("keydown", mantwomoves)
+
+    var topCoorManOne = 10
+    var leftCoorManOne = 10
+    var topCoorManTwo = 200
+    var leftCoorManTwo = 10
+    var directionTop = 50
+    var directionLeft= 50
+    var anyKeyPress=false
+
+
+    function manonemoves(e){
+        anyKeyPress=true
+        if(e.key==="d"){
+        leftCoorManOne = leftCoorManOne + directionLeft
+        document.getElementById("manone").style.left = leftCoorManOne + "px";
+    }
+    if(e.key==="a"){
+        leftCoorManOne = leftCoorManOne - directionLeft
+        document.getElementById("manone").style.left = leftCoorManOne + "px";
+    }
+    console.log(e)
+}
+    function mantwomoves(e){
+        anyKeyPress=true
+        if(e.key==="ArrowRight"){
+        leftCoorManTwo = leftCoorManTwo + directionLeft
+        document.getElementById("mantwo").style.left = leftCoorManTwo + "px";
+    }
+    if(e.key==="ArrowLeft"){
+        leftCoorManTwo = leftCoorManTwo - directionLeft
+        document.getElementById("mantwo").style.left = leftCoorManTwo + "px";
+    }
+}
+</script>
