@@ -14,22 +14,33 @@
       top: 100px;
       left: 100px;
     }
+    #instructions {
+      width: 1000px;
+      height: 10px;
+      position: absolute;
+      font-size: 40px;
+      top: 5px;
+      left: 400px;
+    }
   </style>
 </head>
 
 <body>
   <div id="box"> </div>
+  <p id="instructions"> Click on box to begin. </p>
 </body>
 
 </html>
 <script>
   document.getElementById("box").addEventListener("click", yip)
 
+
   var topCoor = 100
   var leftCoor = 100
   var directionLeft = 100
   var directionTop = 100
   function yip(){
+    document.getElementById("instructions").innerText= " "
     setInterval(moveBox,15)
   }
 
