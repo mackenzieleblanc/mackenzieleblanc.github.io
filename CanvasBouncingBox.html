@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Vector box of death</title>
+</head>
+<body>
+<canvas id="canvas" height="970" width="2000"></canvas>
+</body>
+</html>
+<script>
+  var canvas = document.getElementById("canvas")
+  var ctx = canvas.getContext("2d")
+  var topCoor = 100
+  var leftCoor = 100
+  var directionLeft = 100
+  var directionTop = 100
+
+  setInterval(main,15);
+
+  function main(){
+    ctx.clearRect(0,0,2000,2000)
+    ctx.fillRect(leftCoor, topCoor, 100, 100);
+    ctx.fillStyle= "#e3b3c0";
+    
+    if (leftCoor <= 0) {
+      directionLeft = 30
+    }
+    if (leftCoor > 1799) {
+      directionLeft = -30
+    }
+    if (topCoor <= 0){
+      directionTop = 30
+    }
+    if (topCoor > 840) {
+      directionTop = -30
+    }
+    leftCoor = leftCoor + directionLeft
+      topCoor = topCoor + directionTop
+ 
+      
+  }
+  document.getElementById("box").style.left = leftCoor + "px";
+      document.getElementById("box").style.top = topCoor + "px";
+      console.log(leftCoor+","+topCoor)
+ 
+</script>

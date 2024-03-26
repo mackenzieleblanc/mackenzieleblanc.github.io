@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Vector box of death times a hundred</title>
+</head>
+
+<body>
+  <canvas id="canvas" height="970" width="2000"></canvas>
+</body>
+
+</html>
+<script>
+  var canvas = document.getElementById("canvas")
+  var ctx = canvas.getContext("2d")
+  var topCoor = []
+  var leftCoor = []
+  var directionLeft = []
+  var directionTop = []
+
+  for (i = 0; i < 1; i = i + 1) {
+    topCoor.push(Math.random() * 900)
+    leftCoor.push(Math.random() * 900)
+    directionLeft.push(Math.random() * 10)
+    directionTop.push(Math.random() * 10)
+  }
+
+  setInterval(main, 15);
+  setInterval(colorTehBoxen, 400)
+
+  function colorTehBoxen() {
+    ctx.fillStyle = "hsl(" + Math.random() * 360 + ",50%,80%)";
+  }
+
+  ctx.fillStyle = "#e3b3c0";
+
+  function main() {
+    ctx.clearRect(0, 0, 2000, 2000)
+    for (i = 0; i < topCoor.length; i = i + 1) {
+
+      ctx.fillRect(leftCoor[i], topCoor[i], 100, 100);
+
+
+
+      if (leftCoor[i] <= 0) {
+        directionLeft[i] = -directionLeft[i]
+        topCoor.push(Math.random() * 900)
+        leftCoor.push(Math.random() * 900)
+        directionLeft.push(Math.random() * 10)
+        directionTop.push(Math.random() * 10)
+      }
+      if (leftCoor[i] > 1799) {
+        directionLeft[i] = -directionLeft[i]
+        topCoor.push(Math.random() * 900)
+        leftCoor.push(Math.random() * 900)
+        directionLeft.push(Math.random() * 10)
+        directionTop.push(Math.random() * 10)
+      }
+      if (topCoor[i] <= 0) {
+        directionTop[i] = -directionTop[i]
+        topCoor.push(Math.random() * 900)
+        leftCoor.push(Math.random() * 900)
+        directionLeft.push(Math.random() * 10)
+        directionTop.push(Math.random() * 10)
+      }
+      if (topCoor[i] > 840) {
+        directionTop[i] = -directionTop[i]
+
+        topCoor.push(Math.random() * 900)
+        leftCoor.push(Math.random() * 900)
+        directionLeft.push(Math.random() * 10)
+        directionTop.push(Math.random() * 10)
+      }
+      leftCoor[i] = leftCoor[i] + directionLeft[i]
+      topCoor[i] = topCoor[i] + directionTop[i]
+
+    }
+  }
+</script>

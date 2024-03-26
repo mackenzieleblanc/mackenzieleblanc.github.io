@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>I must now scream</title>
+</head>
+<body>
+<canvas id="canvas" height="970" width="2000"></canvas>
+</body>
+</html>
+<script>
+     var canvas = document.getElementById("canvas")
+  var ctx = canvas.getContext("2d")
+  
+for(var i=0;i<1080;i=i+1){
+    ctx.fillRect(Math.cos(i/100)*50+100, Math.sin(i/100)*50+100, 2, 2);
+    Math.cos(i/100)
+}
+</script>
