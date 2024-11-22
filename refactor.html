@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>HAR HAR hAR HAr</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+
+    function calculateStudentGrades(grades) {
+
+        let totalGrades = 0;
+        var highestGrade = getHighestGradeCalc(grades)
+        var averageGrade = averageGradeCalc(totalGrades, grades.length)
+
+        finalGradeCalc(averageGrade)
+        console.log("Highest Grade: " + highestGrade);
+    }
+
+
+    function getHighestGradeCalc(grades) {
+        let totalGrades = 0;
+        let highestGrade = grades[0];
+
+        for (let i = 0; i < grades.length; i++) {
+
+            if (grades[i] > highestGrade) {
+                highestGrade = grades[i];
+            }
+            totalGrades += grades[i];
+        }
+        return highestGrade
+    }
+
+    function averageGradeCalc(totalGrades, grades.length) {
+        let averageGrade = totalGrades / grades.length;
+        return averageGrade
+    }
+
+    function finalGradeCalc(averageGrade) {
+        if (averageGrade >= 90) {
+            console.log("Final Grade: A");
+        } else if (averageGrade >= 80) {
+            console.log("Final Grade: B");
+        } else if (averageGrade >= 70) {
+            console.log("Final Grade: C");
+        } else {
+            console.log("Final Grade: F");
+        }
+    }
+    function getTotalGrades() {
+        let totalGrades = 0;
+        for (let i = 0; i < grades.length; i++) {
+            totalGrades += grades[i];
+
+        }
+        return totalGrades
+
+    }
+
+    calculateStudentGrades([85, 92, 88, 76, 95]);
+
+
+
+
+</script>

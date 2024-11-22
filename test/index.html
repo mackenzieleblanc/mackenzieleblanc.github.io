@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>testtesttest</title>
+
+</head>
+
+<body>
+
+    <canvas id="canvas" height="970" width="2000"></canvas>
+
+    <img id="character" src="sprite.png">
+
+
+</body>
+
+</html>
+
+<script>
+
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const sprite = document.getElementById("character");
+
+    ctx.drawImage(sprite, 100, 100, 100, 100);
+
+    function drawCharacter() {
+
+        if (character1.facingRight) {
+            ctx.drawImage(character.sprite, character1.leftCoor, character1.topCoor, 300, 200)
+        } else {//for running to the left you mirror the image. you also have to draw the 
+            ctx.save();
+            ctx.scale(-1, 1); //mirror the entire canvas
+            ctx.drawImage(character.sprite, character1.leftCoor, character1.topCoor, 300, 200)
+            ctx.restore();//put the canvas back to normal
+        }
+    }
+
+</script>

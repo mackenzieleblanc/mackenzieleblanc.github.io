@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Animate</title>
+    <style>
+        #sprite {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="canvas" height="1000" width="2000"></canvas>
+    <img id="sprite" src="smallmanspritefinal.png">
+
+</body>
+
+</html>
+<script>
+
+    var canvas = document.getElementById("canvas")
+    var ctx = canvas.getContext("2d")
+
+    var animationImg = document.getElementById("sprite")
+    var sx = 75
+    var sy = 0
+    var sWidth = 75
+    var sHeight = 200
+    var x = 100
+    var y = 100
+    var count = 0
+    var amountOfFrames = 2
+    var width = 150
+    var height = 400
+
+    setInterval(main, 30);
+
+    function main() {
+        ctx.clearRect(0, 0, 2000, 2000)
+        animation()
+
+    }
+
+    function animation() {
+        count = count + 1 / 6
+
+        ctx.drawImage(animationImg, sx * Math.floor(count % amountOfFrames), sy, sWidth, sHeight, x, y, width, height);
+    }
+</script>

@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>fightfightfight</title>
+  <style>
+    #character1 {
+      display: none;
+    }
+
+    #character2 {
+      transform: scaleX(-1);
+      display: none;
+    }
+
+    #hitboxLchr1 {
+      width: 175px;
+      height: 80px;
+      position: absolute;
+      top: 480px;
+      left: 350px;
+      border-style: dashed;
+      border-color: rgb(11, 255, 23);
+    }
+
+    #hitboxMchr1 {
+      width: 200px;
+      height: 150px;
+      position: absolute;
+      top: 470px;
+      left: 350px;
+      border-style: dashed;
+      border-color: rgb(255, 178, 11);
+    }
+
+    #hitboxHchr1 {
+      width: 270px;
+      height: 240px;
+      position: absolute;
+      top: 430px;
+      left: 350px;
+      border-style: dashed;
+      border-color: rgb(255, 19, 11);
+
+    }
+
+    #hitboxLchr2 {
+      width: 175px;
+      height: 80px;
+      position: absolute;
+      top: 480px;
+      left: 950px;
+      border-style: dashed;
+      border-color: rgb(11, 255, 23);
+      opacity: 0;
+    }
+
+    #hitboxMchr2 {
+      width: 200px;
+      height: 150px;
+      position: absolute;
+      top: 470px;
+      left: 925px;
+      border-style: dashed;
+      border-color: rgb(255, 178, 11);
+      opacity: 0;
+    }
+
+    #hitboxHchr2 {
+      width: 360px;
+      height: 100px;
+      position: absolute;
+      top: 490px;
+      left: 765px;
+      border-style: dashed;
+      border-color: rgb(255, 19, 11);
+      opacity: 0;
+    }
+  </style>
+
+
+</head>
+
+<body>
+
+  <canvas id="canvas" height="970" width="2000"></canvas>
+
+  <div id="hitboxLchr1"> </div>
+  <div id="hitboxMchr1"> </div>
+  <div id="hitboxHchr1"> </div>
+  <div id="hitboxLchr2"> </div>
+  <div id="hitboxMchr2"> </div>
+  <div id="hitboxHchr2"> </div>
+  <img id="character1" src="image.png">
+  <img id="character2" src="sprite.png">
+
+
+</body>
+
+</html>
+
+<script>
+
+
+  //////////////////////////////////////////////////////////////////
+  /////////////////// SETUP ///////////////////////////////
+  //////////////////////////////////////////////////////////////////
+
+  var canvas = document.getElementById("canvas")
+  var ctx = canvas.getContext("2d")
+  const maxSpeed = 30
+  const walkAcceleration = 2.5
+
+  var character1 = {
+    topCoor: 400,
+    leftCoor: 200,
+    velocityX: 0,
+    velocityY: 0,
+    hitboxL: [350, 480],
+    hitboxM: [350, 470],
+    hitboxH: [350, 430],
+    facingRight: true,
+    facingLeft: false,
+    moveRight: false,
+    moveLeft: false,
+    sprite: document.getElementById("character1"),
+    width: 150,
+  }
+
+  var character2 = {
+    topCoor: 400,
+    leftCoor: 1100,
+    velocityX: 0,
+    velocityY: 0,
+    hitboxL: [950, 480],
+    hitboxM: [925, 470],
+    hitboxH: [765, 490],
+    facingRight: false,
+    facingLeft: true,
+    moveRight: false,
+    moveLeft: false,
+    sprite: document.getElementById("character2"),
+    width: 150,
+  }
+
+  var directionLeft = 30
+  var friction = 1.5
+  var anyKeyPress = false
+
+  setInterval(main, 30);
+
+  document.addEventListener("keydown", keyDownPress)
+  document.addEventListener("keyup", keyUpPress)
+  document.addEventListener("keydown", hideHitbox)
+
+  //////////////////////////////////////////////////////////////////
+  /////////////////// CORE LOGIC ///////////////////////////////
+  //////////////////////////////////////////////////////////////////
+
+  function main() {
+    ctx.clearRect(0, 0, 2000, 2000)
+    character1.leftCoor = character1.leftCoor + character1.velocityX
+    character1.topCoor = character1.topCoor + character1.velocityY
+    character2.leftCoor = character2.leftCoor + character2.velocityX
+    character2.topCoor = character2.topCoor + character2.velocityY
+    character1.hitboxL[0] = character1.hitboxL[0] + character1.velocityX //// LOOK AT LATER
+    document.getElementById("character1").style.left = character1.leftCoor + "px";
+    document.getElementById("character2").style.left = character2.leftCoor + "px";
+    //ctx.drawImage(character1.sprite, 100, 100, 100,100)
+    collision()
+    keyboardControlActions()
+    frictionAndGravity()
+    drawCharacter()
+  }
+
+  //////////////////////////////////////////////////////////////////
+  /////////////////// HELPER FUNCTIONS ///////////////////////////////
+  //////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+  function hideHitbox(e) {
+    anyKeyPress = true
+    if (e.key === "t") {
+      document.getElementById("hitboxHchr1").style.opacity = 0;
+      document.getElementById("hitboxMchr1").style.opacity = 0;
+      document.getElementById("hitboxLchr1").style.opacity = 0;
+
+    }
+    if (e.key === "1") {
+      document.getElementById("hitboxLchr1").style.opacity = 100;
+    }
+    if (e.key === "2") {
+      document.getElementById("hitboxMchr1").style.opacity = 100;
+    }
+    if (e.key === "3") {
+      document.getElementById("hitboxHchr1").style.opacity = 100;
+    }
+  }
+
+  var count = 0
+  function drawCharacter() {
+    count = count + 1 / 6
+    if (character1.leftCoor < character2.leftCoor) {
+      ctx.drawImage(character1.sprite, 69 * Math.floor(count % 2), 0, 69, 137, character1.leftCoor, character1.topCoor, 150, 300);
+      ctx.drawImage(character2.sprite, 69 * Math.floor(count % 2), 0, 69, 137, character2.leftCoor, character2.topCoor, 150, 300);
+
+    } else if (character1.leftCoor > character2.leftCoor) {
+      ctx.drawImage(character1.sprite, 69 * Math.floor(count % 2), 0, 69, 137, character1.leftCoor, character1.topCoor, 150, 300);
+      ctx.drawImage(character2.sprite, 69 * Math.floor(count % 2), 0, 69, 137, character2.leftCoor, character2.topCoor, 150, 300);
+    }
+    ///ctx.drawImage(character2.sprite, 500, 400, 300, 300);
+
+    ///img, sx, sy, swidth, sheight, dx, dy, width, height
+    ///img, 69, 137, 100, 300, 350, 400, 300, 300
+    /// ctx.drawImage(character1.sprite, 350, 400, 300, 300);
+
+  }
+
+  function frictionAndGravity() {
+    /// character1.leftCoor = character1.velocityX + character1.leftCoor
+    /// character2.leftCoor = character2.velocityX + character2.leftCoor
+
+
+
+    if (character1.velocityX > maxSpeed) { //limits speed to maxSpeed
+      character1.velocityX = maxSpeed
+    }
+
+    if (character1.velocityX < -maxSpeed) { //limits speed to maxSpeed
+      character1.velocityX = -maxSpeed
+    }
+
+    //friction
+    if (Math.abs(character1.velocityX) < 1) { //this makes sure that the player actually stops when the speed gets low enough
+      //otherwise if you just always reduce speed it will just end up jiggling
+      character1.velocityX = 0
+    }
+    else if (character1.velocityX > 0) {
+      character1.velocityX = character1.velocityX - friction
+    } else {
+      character1.velocityX = character1.velocityX + friction
+    }
+
+    if (character1.playerOnGround === false) {
+      character1.velocityY = character1.velocityY + gravity
+    }
+
+    if (character2.velocityX > maxSpeed) { //limits speed to maxSpeed
+      character2.velocityX = maxSpeed
+    }
+
+    if (character2.velocityX < -maxSpeed) { //limits speed to maxSpeed
+      character2.velocityX = -maxSpeed
+    }
+
+    //friction
+    if (Math.abs(character2.velocityX) < 1) { //this makes sure that the player actually stops when the speed gets low enough
+      //otherwise if you just always reduce speed it will just end up jiggling
+      character2.velocityX = 0
+    }
+    else if (character2.velocityX > 0) {
+      character2.velocityX = character2.velocityX - friction
+    } else {
+      character2.velocityX = character2.velocityX + friction
+    }
+
+
+    if (character2.playerOnGround === false) {
+      character2.velocityY = character2.velocityY + gravity
+    }
+
+  }
+
+  function keyDownPress(e) {
+    anyKeyPress = true
+    if (e.key === "d") {
+      character1.moveRight = true
+      character1.facingRight = true
+      character1.facingLeft = false
+    }
+    if (e.key === "a") {
+      character1.moveLeft = true
+      character1.facingRight = false
+      character1.facingLeft = true
+    }
+    if (e.key === "w") {
+      character1.jump = true
+    }
+    if (e.key === "j") {
+      character2.moveLeft = true
+      character2.facingRight = false
+      character2.facingLeft = true
+    }
+    if (e.key === "l") {
+      character2.moveRight = true
+      character2.facingRight = true
+      character2.facingLeft = false
+    }
+    if (e.key === "i") {
+      character2.jump = true
+    }
+  }
+
+  function keyUpPress(e) {
+    if (e.key === "d") {
+      character1.moveRight = false
+    }
+    if (e.key === "a") {
+      character1.moveLeft = false
+    }
+    if (e.key === "w") {
+      character1.jump = false
+    }
+    if (e.key === "j") {
+      character2.moveLeft = false
+    }
+    if (e.key === "l") {
+      character2.moveRight = false
+    }
+    if (e.key === "i") {
+      character2.jump = false
+    }
+  }
+
+
+  function keyboardControlActions() {
+    anyKeyPress = false //keyboardHandler will set this to true if you press any key. setting the variable to false here makes sure that key press dosen't stick around.
+    //this is used for respawning, basicly if you hit any key after you die this variable will be set to true and you will respawn. 
+
+    if (character1.moveLeft) {
+      character1.velocityX -= walkAcceleration
+      facingRight = false
+    }
+    if (character1.moveRight) {
+      character1.velocityX += walkAcceleration
+      facingRight = true
+    }
+    if (character1.jump) {
+      if (character1.playerOnGround) { //this only lets you jump if you are on the ground
+        character1.velocityY = character1.velocityY - playerJumpStrength
+        jumpTimer = 19 //this counts how many frames to have the jump last. 
+        character1.playerOnGround = false //bug fix for jump animation, you have to change this or the jump animation doesn't work
+        frameIndex = 4
+      }
+    }
+    if (character2.moveLeft) {
+      character2.velocityX -= walkAcceleration
+      facingRight = false
+    }
+    if (character2.moveRight) {
+      character2.velocityX += walkAcceleration
+      facingRight = true
+    }
+    if (character2.jump) {
+      if (character2.playerOnGround) { //this only lets you jump if you are on the ground
+        character2.velocityY = character2.velocityY - playerJumpStrength
+        jumpTimer = 19 //this counts how many frames to have the jump last. 
+        character2.playerOnGround = false //bug fix for jump animation, you have to change this or the jump animation doesn't work
+        frameIndex = 4
+        //// FOR SOME REASON THIS IS ALWAYS TRIGGERED WHEN CHARACTER 2 HITS THE GROUND?
+      }
+    }
+  }
+
+  function collision() {
+
+
+    if (character1.leftCoor + character1.width > character2.leftCoor) {
+      if (character1.leftCoor < character2.leftCoor + character2.width) {
+        if (character1.topCoor < character2.topCoor + character2.height) {
+          if (character1.topCoor + character1.height > character2.topCoor) {
+            result = resolveCollision()
+            ///alert("BOOOO")
+          }
+        }
+      }
+      //return result
+    }
+    return result
+
+  }
+
+  function resolveCollision() {
+    //this is the return value
+    let collisionDirectionCharacter1 = ""
+    let collisionDirectionCharacter2 = ""
+    //found here https://stackoverflow.com/questions/38648693/resolve-collision-of-two-2d-elements
+    //first we find the distance between the center of the object and the player
+    let dxcharacter1 = (character1.leftCoor + (character1.width / 2)) - (character2.leftCoor + (character2.width / 2))
+    let dycharacter1 = (character1.topCoor + (character1.height / 2)) - (character2.topCoor + (character2.height / 2))
+    let dxcharacter2 = (character2.leftCoor + (character2.width / 2)) - (character1.leftCoor + (character1.width / 2))
+    let dycharacter2 = (character2.topCoor + (character2.height / 2)) - (character1, topCoor + (character1.height / 2))
+
+    //get half widths of each item
+    //i'm honestly not 100% certian why this step is in there, but it works.
+    let halfWidthCharacter1 = (character1.width / 2) + (character2.width / 2)
+    let halfHeightCharacter1 = (character1.height / 2) + (character2.height / 2)
+    let halfWidthCharacter2 = (character2.width / 2) + (character1.width / 2)
+    let halfHeightCharacter2 = (character2.height / 2) + (character1.height / 2)
+
+    // if the x and y vector are less than the half width or half height,
+    // they we must be inside the object, causing a collision
+    //         if (Math.abs(dx) <= halfWidth) {
+    // if (Math.abs(dy) <= halfHeight) {
+    //what side are we colliding on?
+    let originxCharacter1 = halfWidthCharacter1 - Math.abs(dxcharacter1)
+    let originyCharacter1 = halfHeightCharacter1 - Math.abs(dycharacter1)
+    let originxCharacter2 = halfWidthCharacter2 - Math.abs(dxcharacter2)
+    let originyCharacter2 = halfHeightCharacter2 - Math.abs(dycharacter2)
+
+    if (debugVar) {
+      //debug
+      ctx.strokeStyle = 'blue'
+      ctx.beginPath()
+      ctx.moveTo(objx + dx, objy)
+      ctx.lineTo(objx, objy)
+      ctx.lineTo(objx, objy + dy)
+      ctx.stroke()
+      ctx.fillStyle = "rbga(252,186,3,.3)"
+      ctx.fillRect(playerX, playerY, HitBoxWidth, hitBoxHeight)
+    }
+    //player 1 priority
+    if (originxCharacter1 >= originyCharacter1) {
+      if (dycharacter1 > 0) {                    //bottom collision
+        collisionDirectionCharacter1 = 'bottom'
+        character1.topCoor = character1.topCoor + originyCharacter1 + 1
+        character1.velocityY = 0
+      } else {                         //top collision
+        collisionDirectionCharacter1 = 'top'
+        character1.topCoor = character1.topCoor - originyCharacter1
+        character1.velocityY = 0
+        playerOnGround = true
+      }
+    } else {
+      if (dxcharacter1 > 0) {                    //left collision
+        collisionDirectionCharacter1 = 'left'
+        character1.leftCoor = character1.leftCoor + originxCharacter1
+        character1.velocityX = 0
+      } else {                        //right collision
+        collisionDirectionCharacter1 = 'right'
+        character1.leftCoor = character1.leftCoor - originxCharacter1
+        character1.velocityX = 0
+      }
+    }
+    //player 2 priority
+    if (originxCharacter2 >= originyCharacter2) {
+      if (dycharacter2 > 0) {                    //bottom collision
+        collisionDirectionCharacter2 = 'bottom'
+        character2.topCoor = character2.topCoor + originyCharacter2 + 1
+        character2.velocityY = 0
+      } else {                         //top collision
+        collisionDirectionCharacter2 = 'top'
+        character2.topCoor = character2.topCoor - originyCharacter2
+        character2.velocityY = 0
+        playerOnGround = true
+      }
+    } else {
+      if (dxcharacter2 > 0) {                    //left collision
+        collisionDirectionCharacter2 = 'left'
+        character2.leftCoor = character2.leftCoor + originxCharacter2
+        character2.velocityX = 0
+      } else {                        //right collision
+        collisionDirectionCharacter2 = 'right'
+        character2.leftCoor = character2.leftCoor - originxCharacter2
+        character2.velocityX = 0
+      }
+    }
+
+
+
+    return collisionDirectionCharacter1
+    return collisionDirectionCharacter2
+
+  }
+
+
+
+
+  function attackDown(e) {
+    if (e.key === "c") {
+      character1.lightAttack = true
+    }
+    if (e.key === "x") {
+      character1.mediumAttack = true
+    }
+    if (e.key === "z") {
+      character1.heavyAttack = true
+    }
+    if (e.key === "n") {
+      character2.lightAttack = true
+    }
+    if (e.key === "m") {
+      character2.mediumAttack = true
+    }
+    if (e.key === ",") {
+      character2.heavyAttack = true
+    }
+  }
+
+  function upAttack(e) {
+    if (e.key === "c") {
+      character1.lightAttack = false
+    }
+    if (e.key === "x") {
+      character1.mediumAttack = false
+    }
+    if (e.key === "z") {
+      character1.heavyAttack = false
+    }
+    if (e.key === "n") {
+      character2.lightAttack = false
+    }
+    if (e.key === "m") {
+      character2.mediumAttack = false
+    }
+    if (e.key === ",") {
+      character2.heavyAttack = false
+    }
+  }
+
+  function attack() {
+    if (character1.lightAttack) {
+      //alert("character 1 light attack!! ^~^")
+      ctx.beginPath();
+      ctx.rect(343, 475, 175, 80);
+      ctx.stroke();
+      ctx.lineWidth = "2";
+      ctx.strokeStyle = "green";
+    } else if (character1.mediumAttack) {
+      ctx.beginPath();
+      ctx.rect(345, 466, 200, 150);
+      ctx.stroke();
+      ctx.lineWidth = "2";
+      ctx.strokeStyle = "orange";
+      //alert("character 1 medium attack!!!11!1! owo")
+    } else if (character1.heavyAttack) {
+      ctx.beginPath();
+      ctx.rect(344, 425, 270, 240);
+      ctx.stroke();
+      ctx.lineWidth = "2";
+      ctx.strokeStyle = "red";
+      //alert("character 1 heavy attack.")
+    }
+  }
+
+</script>
