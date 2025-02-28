@@ -15,7 +15,7 @@
 <body>
 
     <canvas id="canvas" height="1000" width="2000"></canvas>
-    <img id="sprite" src="dungtempSpriteOtherother.png">
+    <img id="sprite" src="sprites.png">
 
 </body>
 
@@ -26,28 +26,184 @@
     var ctx = canvas.getContext("2d")
 
     var animationImg = document.getElementById("sprite")
-    var sx = 49
+    var sx = 0
     var sy = 0
-    var sWidth = 48
-    var sHeight = 36
+    var sxIdleAll = [0, 100, 200, 300, 400, 0]
+    var syIdleAll = [0, 0, 0, 0, 0, 100]
+    var sxMoveAll = [100, 200, 300, 400]
+    var syMoveAll = [100, 100, 100, 100]
+    var sWidth = 100
+    var sHeight = 100
     var x = 100
     var y = 100
     var count = 0
-    var amountOfFrames = 2
+    var amountOfFrames = 6
     var width = 400
-    var height = 300
+    var height = 400
+    var thing = 2
+    var north = false
+    var down = false
+    var left = false
+    var right = false
+    var move = false
+    var velocityY = 0
+    var velocityX = 0
 
     setInterval(main, 30);
 
     function main() {
         ctx.clearRect(0, 0, 2000, 2000)
+
+
+        y = y + velocityY
+        x = x + velocityX
+        moveVertical()
         animation()
+
+        ctx.fillText(velocityY, 1200, 100)
+        ctx.fillText(north, 1200, 300)
+
+
+
+    }
+
+    document.addEventListener("keydown", handleKeyDown)
+    document.addEventListener("keyup", handleKeyUp)
+
+    function handleKeyDown(e) {
+
+        if (e.key === "w") {
+            north = true
+            move = true
+        }
+        if (e.key === "s") {
+            down = true
+            move = true
+        }
+        if (e.key === "a") {
+            left = true
+            move = true
+        }
+        if (e.key === "d") {
+            right = true
+            move = true
+        }
+    }
+
+    function handleKeyUp(e) {
+
+
+        if (e.key === "w") {
+            north = false
+            move = false
+        }
+        if (e.key === "s") {
+            down = false
+            move = false
+        }
+        if (e.key === "a") {
+            left = false
+            move = false
+        }
+        if (e.key === "d") {
+            right = false
+            move = false
+        }
+
+    }
+
+    function moveVertical() {
+
+        if (north) {
+            velocityY = -10
+        }
+        if (down) {
+            velocityY = 10
+        }
+        if (left) {
+            velocityX = -10
+        }
+        if (right) {
+            velocityX = 10
+        }
+        if (!move) {
+            velocityY = 0
+            velocityX = 0
+        }
 
     }
 
     function animation() {
         count = count + 1 / 6
 
-        ctx.drawImage(animationImg, sx * Math.floor(count % amountOfFrames), sy, sWidth, sHeight, x, y, width, height);
+        currentFrame = Math.floor(count % amountOfFrames)
+
+        ctx.fillText("currentFrame: " + currentFrame, 900, 100)
+        ctx.fillText("count: " + count, 900, 200)
+        ctx.fillText("sy: " + sy, 900, 300)
+        ctx.fillText("sx: " + sx, 900, 400)
+        ctx.fillText("sx * currentFrame: " + sx * currentFrame, 900, 500)
+
+        if (!move) {
+            amountOfFrames = 6
+            switch (currentFrame) {
+                case 0:
+                    sx = sxIdleAll[0];
+                    sy = syIdleAll[0];
+                    break;
+                case 1:
+                    sx = sxIdleAll[1];
+                    sy = syIdleAll[1];
+                    break;
+                case 2:
+                    sx = sxIdleAll[2];
+                    sy = syIdleAll[2];
+                    break;
+                case 3:
+                    sx = sxIdleAll[3];
+                    sy = syIdleAll[3];
+                    break;
+                case 4:
+                    sx = sxIdleAll[4];
+                    sy = syIdleAll[4];
+                    break;
+                case 5:
+                    sx = sxIdleAll[5];
+                    sy = syIdleAll[5];
+                    break;
+            }
+        } else if (move) {
+            amountOfFrames = 4
+            switch (currentFrame) {
+                case 0:
+                    sx = sxMoveAll[0];
+                    sy = syMoveAll[0];
+                    break;
+                case 1:
+                    sx = sxMoveAll[1];
+                    sy = syMoveAll[1];
+                    break;
+                case 2:
+                    sx = sxMoveAll[2];
+                    sy = syMoveAll[2];
+                    break;
+                case 3:
+                    sx = sxMoveAll[3];
+                    sy = syMoveAll[3];
+                    break;
+
+            }
+
+
+
+        }
+
+        ////im going to kill myself i swear to god
+
+
+
+        ctx.drawImage(animationImg, sx, sy, sWidth, sHeight, x, y, width, height);
+
+
     }
 </script>

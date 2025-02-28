@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>image filtering</title>
+    <style>
+        img {
+            width: 300px;
+            height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <img id="duck" src="natureinnovato.png">
+    <canvas id="canvas" width="300" height="300"></canvas>
+</body>
+
+</html>
+
+<script>
+    window.addEventListener("load", main);
+    var count = 0
+    var originalImage
+    var canvas
+    var ctx
+    function main() {
+        canvas = document.getElementById("canvas")
+        ctx = canvas.getContext("2d")
+        
+
+
+        var duck = document.getElementById("duck")
+        ctx.drawImage(duck, 0, 0, 300, 300)
+
+        var imageData = ctx.getImageData(0, 0, 300, 300)
+        originalImage = imageData
+        console.log(imageData)
+
+        for (i = 0; i < imageData.data.length; i++) {
+
+            if (i % count === 0) {
+                imageData.data[i] = originalImage.data[i] + 100
+            }
+            // if(i%4 === 1){
+            // imageData.data[i] = imageData.data[i] + 100
+            // }
+            // imageData.data[i] = imageData.data[i] + 100
+        }
+        count++
+        ctx.putImageData(imageData, 0, 0)
+        setTimeout(main, 100)
+
+        ctx.putImageData(imageData, 0, 0)
+
+
+    }
+
+
+</script>

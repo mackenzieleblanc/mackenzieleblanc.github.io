@@ -45,6 +45,8 @@ window.onload = function () {
         animateTopCoor: 0,
         attackFrameLight: 0,
         numberOfJumps: 0,
+        sx: 595,
+        sy: 0,
     }
     ///leftCoor: 1100 player 2
     ///leftCoor: 200 player 1
@@ -72,14 +74,14 @@ window.onload = function () {
         collisionOnPlayerOne: false,
         currentAnimationType: "idle",
     }
-
+////punchSx: [595, 1190, 1785],
     var animationDetailsChr1 = {
-        idleSx: [595, 1190, 1785, 2380, 2975, 3570],
+        idleSx: [0, 595, 1190, 1785, 2380, 2975],
         idleSy: [0, 0, 0, 0, 0, 0],
         idleFrames: 6,
-        punchSx: [595, 1190, 1785],
+        punchSx: [0, 595, 1190],
         punchSy: [576, 576, 576],
-        punchFrames: 3,
+        punchFrames: 4,
         kickSx: [2380, 2975, 3570, 595, 1190],
         kickSy: [576, 576, 1152, 1152, 1152],
         kickFrames: 5,
@@ -91,6 +93,7 @@ window.onload = function () {
         hitFrames: 2,
     }
 
+
     var directionLeft = 30
     var friction = 1.5
     var anyKeyPress = false
@@ -101,6 +104,7 @@ window.onload = function () {
     var attackFrameLight = 0
     var attackFrameMedium = 0
     var attackFrameHeavy = 0
+    var currentFrameChr1
 
 
 
@@ -108,8 +112,8 @@ window.onload = function () {
 
     document.addEventListener("keydown", keyDownPress)
     document.addEventListener("keyup", keyUpPress)
-    document.addEventListener("keydown", attackDown)
-    document.addEventListener("keyup", upAttack)
+    document.addEventListener("keypress", attackDown)
+    // document.addEventListener("keyup", upAttack)
     document.addEventListener("keydown", hideHitbox)
 
     //////////////////////////////////////////////////////////////////
@@ -118,6 +122,10 @@ window.onload = function () {
 
     function main() {
         ctx.clearRect(0, 0, 2000, 2000)
+
+        ctx.fillText(character1.lightAttack, 100, 600)
+        ctx.fillText(character1.sx, 100, 700)
+        ctx.fillText(character1.sy, 100, 800)
         frictionAndGravity()
         player1HurtBoxCoors[0] = player1HurtBoxCoors[0] + character1.velocityX
         player1HurtBoxCoors[1] = player1HurtBoxCoors[1] + character1.velocityY
@@ -136,10 +144,11 @@ window.onload = function () {
         collision()
         keyboardControlActions()
         changeAnimationType()
-        animate()
+        // animate()
         ///debug()
-        drawCharacter(character1idle)
         attack()
+        drawCharacter()
+        
         debugMovement()
     }
 
@@ -154,7 +163,7 @@ window.onload = function () {
         ctx.fillStyle = "black"
         ctx.fillText("c1.left:" + character1.moveLeft + " c1.right:" + character1.moveRight + " c1.velx:" + character1.velocityX + " jumpTimer:" + jumpTimer + " c1.leftCoor plus width: " + (character1.leftCoor + character1.width) + " c1.hurtbox: " + player1HurtBoxCoors[0] + " collision?: " + character1.collisionOnPlayerTwo, 100, 100)
         ctx.fillText("c2.left:" + character2.moveLeft + " c2.right:" + character2.moveRight + " c2.velx:" + character2.velocityX + " c2.leftCoor plus width: " + (character2.leftCoor + character2.width) + " collision?: " + character2.collisionOnPlayerOne, 100, 150)
-        
+
 
     }
 
@@ -187,34 +196,91 @@ window.onload = function () {
         let currentsxChr1
         let currentsyChr1
 
-        if (character1.currentAnimationType === "idle") {
-            currentAnimationFrameChr1 = animationDetailsChr1.idleFrames
-            currentsxChr1 = animationDetailsChr1.idleSx
-            currentsyChr1 = animationDetailsChr1.idleSy
-        } else if (character1.currentAnimationType === "punch") {
-            currentAnimationFrameChr1 = animationDetailsChr1.punchFrames
-            currentsxChr1 = animationDetailsChr1.punchSx
-            currentsyChr1 = animationDetailsChr1.punchSy
-        } else if (character1.currentAnimationType === "kick") {
-            console.log("insert kick animation here")
-            character1.animationFrame = 5
-            character1.animateTopCoor = 1152
-        } else if (character1.currentAnimationType === "special") {
-            console.log("insert special animation here")
+        switch (character1.currentAnimationType) {
+            case "idle":
+                currentAnimationFrameChr1 = animationDetailsChr1.idleFrames
+                currentsxChr1 = animationDetailsChr1.idleSx
+                currentsyChr1 = animationDetailsChr1.idleSy
+                animate(currentAnimationFrameChr1, currentsxChr1, currentsyChr1);
+                break;
+            case "punch":
+                currentAnimationFrameChr1 = animationDetailsChr1.punchFrames
+                currentsxChr1 = animationDetailsChr1.punchSx
+                currentsyChr1 = animationDetailsChr1.punchSy
+                animate(currentAnimationFrameChr1, currentsxChr1, currentsyChr1);
+                break;
+            case "kick":
+                console.log("insert kick animation here")
+                // character1.animationFrame = 5
+                // character1.animateTopCoor = 1152
+                break;
+            case "special":
+                console.log("insert special animation here")
+                break;
+
         }
 
-        ctx.fillText("currentsxChr1: " + currentsxChr1, 100, 300)
-        ctx.fillText("currentsyChr1: " + currentsyChr1, 100, 400)
-
-        return currentAnimationFrameChr1, currentsxChr1, currentsyChr1
-
         ///ill never give up on this code o7
+        ///LETS FUCKING GOOOOOOO 
+        ////I WIN I WIN
+        ////I GOT IT WORKING
+        ///sorta, but it doesnt matter!!!1!!!!1!!
     }
 
-    function animate() {
+    function animate(currentAmountOfFramesChr1, sxChr1, syChr1) {
         count = count + 1 / 6
-        character1idle = character1.idleSprite * Math.floor(count % character1.animationFrame)
+        currentFrameChr1 = Math.floor(count % currentAmountOfFramesChr1)
 
+        ctx.fillText(currentFrameChr1, 100, 300)
+        ctx.fillText(character1.sx, 100, 400)
+
+        if (character1.currentAnimationType === "punch") {
+            switch (currentFrameChr1) {
+                case 0:
+                    character1.sx = sxChr1[0]
+                    character1.sy = syChr1[0]
+                    break;
+                case 1:
+                    character1.sx = sxChr1[1]
+                    character1.sy = syChr1[1]
+                    break;
+                case 2:
+                    character1.sx = sxChr1[2]
+                    character1.sy = syChr1[2]
+                    break;
+                case 3:
+                    character1.lightAttack = false
+                    character1.currentAnimationType = "idle"
+
+            }
+        } else if (character1.currentAnimationType === "idle") {
+            switch (currentFrameChr1) {
+                case 0:
+                    character1.sx = sxChr1[0]
+                    character1.sy = syChr1[0]
+                    break;
+                case 1:
+                    character1.sx = sxChr1[1]
+                    character1.sy = syChr1[1]
+                    break;
+                case 2:
+                    character1.sx = sxChr1[2]
+                    character1.sy = syChr1[2]
+                    break;
+                case 3:
+                    character1.sx = sxChr1[3]
+                    character1.sy = syChr1[3]
+                    break;
+                case 4:
+                    character1.sx = sxChr1[4]
+                    character1.sy = syChr1[4]
+                    break;
+                case 5:
+                    character1.sx = sxChr1[5]
+                    character1.sy = syChr1[5]
+                    break;
+            }
+        }
     }
 
     function drawCharacter() {
@@ -228,7 +294,7 @@ window.onload = function () {
             player2HurtBoxCoors[0] = character2.leftCoor + 40
             player1HurtBoxCoors[0] = character1.leftCoor + 40
 
-            ctx.drawImage(character1.sprite, character1idle, character1.animateTopCoor, 595, 577, player1HurtBoxCoors[0] - 40, player1HurtBoxCoors[1], character1.width, character1.height);
+            ctx.drawImage(character1.sprite, character1.sx, character1.sy, 595, 577, player1HurtBoxCoors[0] - 40, player1HurtBoxCoors[1], character1.width, character1.height);
             ctx.save();
             ctx.scale(-1, 1); //mirror the entire canvas
             ctx.drawImage(character2.sprite, character2.idleSprite * Math.floor(count % 6), 0, 385, 577, -player2HurtBoxCoors[0] + 40 - character2.width, character2.topCoor, character2.width, character2.height);
@@ -426,8 +492,8 @@ window.onload = function () {
                         character1.collisionOnPlayerTwo = true
                         character2.collisionOnPlayerOne = true
                         resolveCollisionOnPlayerTwo(player1HurtBoxCoors, player1HurtBoxVolume, player2HurtBoxCoors, player2HurtBoxVolume, character1)
-                        resolveCollisionOnPlayerOne(player1HurtBoxCoors, player1HurtBoxVolume, player2HurtBoxCoors, player2HurtBoxVolume, character2)
-                        
+                        // resolveCollisionOnPlayerOne(player1HurtBoxCoors, player1HurtBoxVolume, player2HurtBoxCoors, player2HurtBoxVolume, character2)
+
                         // resolveCollision(player1HurtBoxCoors, player1HurtBoxVolume, player2HurtBoxCoors, player2HurtBoxVolume, character1, character2)
 
                         if (player1HurtBoxCoors[0] < player2HurtBoxCoors[0]) {
@@ -607,7 +673,7 @@ window.onload = function () {
     function resolveCollision(player1Coors, player1Volume, player2Coors, player2Volume, player1, player2) {
         //this is the return value
         let collisionDirectionCharacter1 = ""
-          let collisionDirectionCharacter2 = ""
+        let collisionDirectionCharacter2 = ""
         //found here https://stackoverflow.com/questions/38648693/resolve-collision-of-two-2d-elements
         //first we find the distance between the center of the object and the player
         let dxcharacter1 = (player1Coors[0] + (player1Volume[0] / 2)) - (player2Coors[0] + (player2Volume[0] / 2))
@@ -700,8 +766,14 @@ window.onload = function () {
 
     function attackDown(e) {
         if (e.key === "c") {
-            character1.lightAttack = true
-            character1.currentAnimationType = "punch"
+            if(character1.currentAnimationType === "idle" || character1.currentAnimationType === "jump" || character1.currentAnimationType === "fall"){
+                character1.lightAttack = true
+                character1.currentAnimationType = "punch"
+                currentFrameChr1 = 0
+                count = 0
+                attack()
+            }
+            
         }
         if (e.key === "x") {
             character1.mediumAttack = true
@@ -746,16 +818,16 @@ window.onload = function () {
         }
     }
 
-    function attack() {
+    function attack() { 
         if (character1.lightAttack) {
-            //alert("character 1 light attack!! ^~^")
-            if (character1idle >= 595) {
-                ctx.beginPath();
-                ctx.rect(character1.hitboxL[0], character1.hitboxL[1], 80, 70);
-                ctx.stroke();
-                ctx.lineWidth = "2";
-                ctx.strokeStyle = "green";
+            if(currentFrameChr1 >=1){
+                //alert("character 1 light attack!! ^~^")
+                // alert("hoahido")
+                ctx.fillStyle = "green";
+                ctx.fillRect(character1.hitboxL[0], character1.hitboxL[1], 80, 70);
+                
             }
+        
         } else if (character1.mediumAttack) {
             ctx.beginPath();
             ctx.rect(345, 466, 200, 150);

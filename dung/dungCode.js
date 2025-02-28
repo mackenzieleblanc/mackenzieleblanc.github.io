@@ -22,7 +22,7 @@ window.onload = function () {
         attackDown: false,
         onGround: false,
         health: 400,
-        type: "player"
+        collisionType: "player"
     }
     var previousTotalTimeElapsed = 0
     var velocityX = 0
@@ -37,17 +37,32 @@ window.onload = function () {
     var projectileVelocity = 30
     var projectileWhenDidWeShootTheLastBulletButInMillisecondsSoWeCanFigureOutIfWeNeedToShootAgain = 0
     var projectileTimeBetweenShots = 200
+    var projectileDamage = 25
     ///Enemy Projectile Variables
     var enemyAttackProjectiles = []
     var enemyProjectileTimeBetweenShots = {
-        calm: 1000,
-        normal: 250,
-        enraged: 100,
+        turret: 1800,
+        soldier: 1000,
+        doubleGunner: 1500,
+        quadrupleGunner: 100,
+        shapeshifter: 100,
+        boss: 10000,
     }
-    var enemyProjectileVelocity = {
-        calm: 1800,
-        normal: 1000,
-        enraged: 400,
+    var enemyHealth = {
+        turret: 15,
+        soldier: 50,
+        doubleGunner: 200,
+        quadrupleGunner: 375,
+        shapeshifter: 375,
+        boss: 750,
+    }
+    var enemyProjectileDamage = {
+        turret: 20,
+        soldier: 35,
+        doubleGunner: 40,
+        quadrupleGunner: 50,
+        shapeshifter: 50,
+        boss: 60,
     }
     var enemyProjectileWhenDidWeShootTheLastBulletButInMillisecondsSoWeCanFigureOutIfWeNeedToShootAgain = 0
 
@@ -67,18 +82,51 @@ window.onload = function () {
     const ENEMY_TYPE = {
         turret: "turret",
         soldier: "soldier",
-        tank: "tank",
-        boss: "boss"
+        doubleGunner: "doubleGunner",
+        shapeshifter: "shapeshifter",
+        quadrupleGunner: "quadrupleGunner",
+        boss: "boss",
     }
-    const ENEMY_TYPE2 = {
-        turret: {
-            "size": 10,
-            "timeBetweenShot": 100,
-            "health": 10,
+    ////interactable variables
+    const INTERACTABLE_TYPE = {
+        goopChamber: "goopChamber",
+        medkit: "medkit",
+        button: "button",
+        npc: "npc",
+    }
+    var interactableWidth = {
+        goopChamber: 110,
+        medkit: 70,
+        button: 105,
+        npc: 100,
+    }
+    var interactableHeight = {
+        goopChamber: 200,
+        medkit: 70,
+        button: 105,
+        npc: 100,
+    }
+    var interactableDetails = {
+        goopChamber: {
+            width: 110,
+            height: 200,
+            health: 100,
         },
-        soldier: "soldier",
-        tank: "tank",
-        boss: "boss"
+        medkit: {
+            width: 70,
+            height: 70,
+            health: 100,
+        },
+        button: {
+            width: 105,
+            height: 105,
+            health: 100,
+        },
+        npc: {
+            width: 100,
+            height: 100,
+            health: 100,
+        },
     }
 
     ////player projectile damage: 25
@@ -112,8 +160,6 @@ window.onload = function () {
      or boss is defeated
     */
 
-
-    const ENEMY_STATE = { calm: "calm", normal: "normal", enraged: "enraged" }
     const ENEMY_DIRECTION = { left: "left", right: "right", down: "down", up: "up" }
 
     var roomList = {}
@@ -131,7 +177,7 @@ window.onload = function () {
     //create walls
     //don't  change these. or do, I'm a comment not a cop
     loadRooms() //this populates the roomList
-    var currentRoom = roomList.roomOne //this sets the current room
+    var currentRoom = roomList.roomNine //this sets the current room
 
 
 
@@ -159,23 +205,70 @@ window.onload = function () {
         if (player.health <= 0) {
             deathOfPlayer()
         }
+
+        for (let i = 0; i < currentRoom.enemies.length; i++) {
+            if (currentRoom.enemies[i].health <= 0) {
+                currentRoom.enemies.splice(i, 1)
+            }
+
+        }
+
+        for (let i = 0; i < currentRoom.interactables.length; i++) {
+            if (currentRoom.interactables[i].health <= 0) {
+                currentRoom.interactables.splice(i, 1)
+            }
+
+        }
+
         drawPlatforms(currentRoom.platforms)
         drawEnemies(currentRoom.enemies)
+        drawInteractables(currentRoom.interactables)
         frictionAndGravity()
         player.x = player.x + velocityX //* delta //this will increase or decrease your velocity based on how much lag the game has, so it always looks like it's moving the same speed despite how fast of a computer you have
         player.y = player.y + velocityY //* delta
         fpsCounter(delta)
 
+        healthBar(player, 400)
+        for (let i = 0; i < currentRoom.enemies.length; i++) {
+            if (currentRoom.enemies[i].enemyType === "turret") {
+                healthBar(currentRoom.enemies[i], enemyHealth.turret)
+            } else if (currentRoom.enemies[i].enemyType === "soldier") {
+                healthBar(currentRoom.enemies[i], enemyHealth.soldier)
+            } else if (currentRoom.enemies[i].enemyType === "doubleGunner") {
+                healthBar(currentRoom.enemies[i], enemyHealth.doubleGunner)
+            } else if (currentRoom.enemies[i].enemyType === "quadrupleGunner") {
+                healthBar(currentRoom.enemies[i], enemyHealth.quadrupleGunner)
+            } else if (currentRoom.enemies[i].enemyType === "shapeshifter") {
+                healthBar(currentRoom.enemies[i], enemyHealth.shapeshifter)
+            } else if (currentRoom.enemies[i].enemyType === "boss") {
+                healthBar(currentRoom.enemies[i], enemyHealth.boss)
+            }
+
+
+        }
+
+        for (let i = 0; i < currentRoom.interactables.length; i++) {
+            if (currentRoom.interactables[i].interactableType === "goopChamber") {
+                healthBar(currentRoom.interactables[i], interactableDetails.goopChamber.health)
+
+            }
+
+        }
+
+
         //ctx.drawImage(character1.sprite, 100, 100, 100,100) 
 
         collision(player, currentRoom.platforms)
+        collision(player, currentRoom.interactables)
         for (let i = 0; i < playerAttack.length; i++) {
             collision(playerAttack[i], currentRoom.platforms)
             collision(playerAttack[i], currentRoom.enemies)
+            collision(playerAttack[i], currentRoom.interactables)
         }
         for (let i = 0; i < enemyAttackProjectiles.length; i++) {
             collision(enemyAttackProjectiles[i], currentRoom.platforms)
             collision(player, enemyAttackProjectiles)
+            collision(enemyAttackProjectiles[i], currentRoom.interactables)
         }
         keyboardControlActions()
         // changeAnimationType()
@@ -216,7 +309,6 @@ window.onload = function () {
     function drawCharacter() {
         ctx.fillStyle = "#AAF6BD";
         ctx.fillRect(player.x, player.y, player.width, player.height);
-
     }
 
     function frictionAndGravity() {
@@ -333,15 +425,68 @@ window.onload = function () {
     }
 
     function debugMovement(totalTimeElapsed) {
+        count += 1 / 6
+        var numberOfDirections = 8
+
         ctx.font = "30px Arial";
         ctx.fillStyle = "black"
         ctx.fillText("velocity X: " + velocityX + " velocity Y: " + velocityY, 100, 100)
         ctx.fillText("up: " + player.attackUp + " down: " + player.attackDown + " right: " + player.attackRight + " left: " + player.attackLeft, 100, 200)
         ctx.fillText(player.x + ", " + player.y, 100, 300)
         ctx.fillText(playerAttack, 100, 400)
-        ctx.fillText(player.health, 100, 500)
+        switch (currentRoom) {
+            case roomList.roomOne:
+                ctx.fillText("room One", 100, 500)
+                break;
+            case roomList.roomTwo:
+                ctx.fillText("room two", 100, 500)
+                break;
+            case roomList.roomThree:
+                ctx.fillText("room three", 100, 500)
+                break;
+            case roomList.roomFour:
+                ctx.fillText("room four", 100, 500)
+                break;
+            case roomList.roomFive:
+                ctx.fillText("room five", 100, 500)
+                break;
+            case roomList.roomSix:
+                ctx.fillText("room six", 100, 500)
+                break;
+            case roomList.roomSeven:
+                ctx.fillText("room seven", 100, 500)
+                break;
+            case roomList.roomEight:
+                ctx.fillText("room eight", 100, 500)
+                break;
+            case roomList.roomNine:
+                ctx.fillText("room nine", 100, 500)
+                break;
+            case roomList.roomTen:
+                ctx.fillText("room ten", 100, 500)
+                break;
+            case roomList.roomEleven:
+                ctx.fillText("room eleven", 100, 500)
+                break;
+            case roomList.bossRoom:
+                ctx.fillText("room boss", 100, 500)
+                break;
+        }
         ctx.fillText(totalTimeElapsed, 100, 600)
         ctx.fillText(currentRoom.enemies.length, 100, 700)
+        ctx.fillText(player.health, 100, 800)
+
+        // ctx.fillRect(currentRoom.enemies[0].x - playerAttackWidth, currentRoom.enemies[0].y - playerAttackHeight, 30, 30) /// top left corner
+        // ctx.fillRect(currentRoom.enemies[0].x + (currentRoom.enemies[0].width / 3), currentRoom.enemies[0].y - playerAttackHeight, 30, 30) ///top center
+        // ctx.fillRect(currentRoom.enemies[0].x + currentRoom.enemies[0].width, currentRoom.enemies[0].y - playerAttackHeight, 30, 30) /// top right corner
+        // ctx.fillRect(currentRoom.enemies[0].x + currentRoom.enemies[0].width, currentRoom.enemies[0].y + (currentRoom.enemies[0].height / 3), 30, 30) ///middle right
+        // ctx.fillRect(currentRoom.enemies[0].x + currentRoom.enemies[0].width, currentRoom.enemies[0].y + currentRoom.enemies[0].height, 30, 30) ///bottom right corner
+        // ctx.fillRect(currentRoom.enemies[0].x + (currentRoom.enemies[0].width / 3), currentRoom.enemies[0].y + currentRoom.enemies[0].height, 30, 30) ///bottom center
+        // ctx.fillRect(currentRoom.enemies[0].x - playerAttackWidth, currentRoom.enemies[0].y + (currentRoom.enemies[0].height / 3), 30, 30) ///middle left
+        // ctx.fillRect(currentRoom.enemies[0].x - playerAttackWidth, currentRoom.enemies[0].y + currentRoom.enemies[0].height, 30, 30) ///bottom left corner
+
+
+
 
     }
 
@@ -358,12 +503,23 @@ window.onload = function () {
                 ctx.fillStyle = "#FE8DB8"
             } else if (currentRoom.enemies[i].enemyType === "soldier") {
                 ctx.fillStyle = "#FF0000"
-            } else if (currentRoom.enemies[i].enemyType === "tank") {
+            } else if (currentRoom.enemies[i].enemyType === "doubleGunner") {
                 ctx.fillStyle = "#D61F6C"
+            } else if (currentRoom.enemies[i].enemyType === "quadrupleGunner") {
+                ctx.fillStyle = "#C88A70"
+            } else if (currentRoom.enemies[i].enemyType === "shapeshifter") {
+                ctx.fillStyle = "#3D0641"
             } else if (currentRoom.enemies[i].enemyType === "boss") {
                 ctx.fillStyle = "#640096"
             }
-            ctx.fillRect(enemies[i].x, enemies[i].y, enemies[i].width, enemies[i].height)
+            if (enemies[i].health > 0) {
+                ctx.fillRect(enemies[i].x, enemies[i].y, enemies[i].width, enemies[i].height)
+                ctx.font = "15px Arial";
+                ctx.fillStyle = "black"
+                ctx.fillText("health: " + enemies[i].health, enemies[i].x, enemies[i].y)
+
+            }
+
         }
     }
 
@@ -373,6 +529,26 @@ window.onload = function () {
     //     platformHeight.push(height)
     //     platformWidth.push(width)
     // }
+    function drawInteractables(interactables) {
+        for (let i = 0; i < interactables.length; i++) {
+            if (interactables[i].interactableType === "goopChamber") {
+                ctx.fillStyle = "#17C9FD"
+            } else if (interactables[i].interactableType === "medkit") {
+                ctx.fillStyle = "#17FD64"
+            } else if (interactables[i].interactableType === "button") {
+                if (interactables[i].funct === "unpushed") {
+                    ctx.fillStyle = "#F89B38"
+                } else if (interactables[i].funct === "pushed") {
+                    ctx.fillStyle = "#AD5F28"
+
+                }
+            } else if (interactables[i].interactableType === "npc") {
+                ctx.fillStyle = "#AFFF55"
+            }
+            ctx.fillRect(interactables[i].x, interactables[i].y, interactables[i].width, interactables[i].height)
+
+        }
+    }
 
     function collision(collider, obstacleList) {
         collider.OnGround = false //you reset this every frame, if the player is actually on the ground the resolveCollision function will set it to true
@@ -383,16 +559,42 @@ window.onload = function () {
                     if (collider.y < obstacleList[i].y + obstacleList[i].height) { //top of player is above bottom of platform
                         if (collider.y + collider.height > obstacleList[i].y) {//bottom of player is below top of platform
                             //now that we know we have collided we figure out the direction of collision
-                            if (collider.type === "player" && obstacleList[i].type === "platform") {
-                                result = resloveCollision(collider, obstacleList[i].x, obstacleList[i].y, obstacleList[i].width, obstacleList[i].height)
-                            } else if (collider.type === "projectile" && obstacleList[i].type === "platform") {
-                                // collider.splice(1, 1)
-                                collider.x = -2000 //teleport it out of bounds because that's easier than figuring out the id to splice it this is terrible but if it works yolo
-                            } else if (collider.type === "player" && obstacleList[i].type === "projectile") {
-                                player.health -= 40
-                                obstacleList[i].x = -2000
-                            } else if (collider.type === "projectile" && obstacleList[i].type === "enemy") {
-                                collider.x = -2000
+                            if (collider.collisionType === "player") {
+                                if (obstacleList[i].collisionType === "platform") {
+                                    result = resloveCollision(collider, obstacleList[i].x, obstacleList[i].y, obstacleList[i].width, obstacleList[i].height)
+                                } else if (obstacleList[i].collisionType === "projectile") {
+                                    player.health -= obstacleList[i].projectileDamage
+                                    obstacleList[i].x = -2000
+                                } else if (obstacleList[i].collisionType === "breakableObject") {
+                                    result = resloveCollision(collider, obstacleList[i].x, obstacleList[i].y, obstacleList[i].width, obstacleList[i].height)
+                                } else if (obstacleList[i].collisionType === "button") {
+                                    obstacleList[i].funct = "pushed"
+                                } else if (obstacleList[i].collisionType === "medkit") {
+                                    collider.health = collider.health + obstacleList[i].health
+                                    obstacleList[i].health = 0
+                                }
+
+                            } else if (collider.collisionType === "projectile") {
+                                if (collider.projectileType === "player") {
+                                    if (obstacleList[i].collisionType === "enemy") {
+                                        collider.x = -2000
+                                        obstacleList[i].health -= projectileDamage
+                                    } else if (obstacleList[i].collisionType === "breakableObject") {
+                                        collider.x = -2000
+                                        obstacleList[i].health -= projectileDamage
+                                    } else if (obstacleList[i].collisionType === "platform") {
+                                        collider.x = -2000
+                                    }
+
+                                } else if (collider.projectileType === "enemy") {
+                                    if (obstacleList[i].collisionType === "breakableObject") {
+                                        collider.x = -2000
+                                        obstacleList[i].health -= projectileDamage
+                                    } else if (obstacleList[i].collisionType === "platform") {
+                                        collider.x = -2000
+                                    }
+
+                                }
                             }
                         }
                     }
@@ -463,7 +665,8 @@ window.onload = function () {
                     speedy: projectileVelocity,
                     width: playerAttackWidth,
                     height: playerAttackHeight,
-                    type: "projectile",
+                    collisionType: "projectile",
+                    projectileType: "player",
                 })
             } else if (player.attackUp) {
                 playerAttack.push({
@@ -473,7 +676,8 @@ window.onload = function () {
                     speedy: -projectileVelocity,
                     width: playerAttackWidth,
                     height: playerAttackHeight,
-                    type: "projectile",
+                    collisionType: "projectile",
+                    projectileType: "player",
                 })
             } else if (player.attackRight) {
                 playerAttack.push({
@@ -483,7 +687,8 @@ window.onload = function () {
                     speedy: 0,
                     width: playerAttackWidth,
                     height: playerAttackHeight,
-                    type: "projectile",
+                    collisionType: "projectile",
+                    projectileType: "player",
                 })
             } else if (player.attackLeft) {
                 playerAttack.push({
@@ -493,7 +698,8 @@ window.onload = function () {
                     speedy: 0,
                     width: playerAttackWidth,
                     height: playerAttackHeight,
-                    type: "projectile",
+                    collisionType: "projectile",
+                    projectileType: "player",
                 })
             }
             projectileWhenDidWeShootTheLastBulletButInMillisecondsSoWeCanFigureOutIfWeNeedToShootAgain = totalTimeElapsed
@@ -525,6 +731,12 @@ window.onload = function () {
                     enemyAttackSoldierProperty(currentRoom.enemies[i])
                 } else if (currentRoom.enemies[i].enemyType === "turret") {
                     enemyAttackTurretProperty(currentRoom.enemies[i])
+                } else if (currentRoom.enemies[i].enemyType === "doubleGunner") {
+                    enemyAttackDoubleGunnerProperty(currentRoom.enemies[i])
+                } else if (currentRoom.enemies[i].enemyType === "quadrupleGunner") {
+                    enemyAttackQuadrupleGunnerProperty(currentRoom.enemies[i])
+                } else if (currentRoom.enemies[i].enemyType === "shapeshifter") {
+                    enemyAttackShapeshifter(currentRoom.enemies[i])
                 }
                 currentRoom.enemies[i].shootTime = totalTimeElapsed
             }
@@ -547,6 +759,7 @@ window.onload = function () {
 
         }
 
+
     }
 
     function enemyAttackSoldierProperty(currentEnemy) {
@@ -559,35 +772,91 @@ window.onload = function () {
         let positionDifferenceBetweenPlayerAndEnemyX = playerCenterX - enemyCenterX
         let positionDifferenceBetweenPlayerAndEnemyY = playerCenterY - enemyCenterY
         let shootAngle = Math.atan2(positionDifferenceBetweenPlayerAndEnemyY, positionDifferenceBetweenPlayerAndEnemyX)
-        let currentProjectileVelocity
+
+        let enemyProjectileX
+        let enemyProjectileY
+        let enemyProjectileSpeedX
+        let enemyProjectileSpeedY
+        let enemyProjectileWidth = 30
+        let enemyProjectileHeight = 30
+        let projectileType = "soldier"
+        let projectileDamage = 35
 
 
         ///let positionDifferenceBetweenPlayerAndEnemyX = currentRoom.enemies[i].x - player.x
         ///let positionDifferenceBetweenPlayerAndEnemyY = currentRoom.enemies[i].y - player.y
 
+        enemyProjectileX = currentEnemy.x + (currentEnemy.width / 3)
+        enemyProjectileY = currentEnemy.y + (currentEnemy.height / 3)
+        enemyProjectileSpeedX = projectileVelocity * Math.cos(shootAngle)
+        enemyProjectileSpeedY = projectileVelocity * Math.sin(shootAngle)
 
-        enemyAttackProjectiles.push({
-            x: currentEnemy.x + (currentEnemy.width / 3),
-            y: currentEnemy.y + (currentEnemy.height / 3),
-            speedx: projectileVelocity * Math.cos(shootAngle),
-            speedy: projectileVelocity * Math.sin(shootAngle),
-            width: playerAttackWidth,
-            height: playerAttackHeight,
-            type: "projectile",
-        })
+        enemyProjectiles(enemyProjectileX, enemyProjectileY, enemyProjectileSpeedX, enemyProjectileSpeedY, enemyProjectileWidth, enemyProjectileHeight, projectileType, projectileDamage)
 
+
+
+        // enemyAttackProjectiles.push({
+        //     x: currentEnemy.x + (currentEnemy.width / 3),
+        //     y: currentEnemy.y + (currentEnemy.height / 3),
+        //     speedx: projectileVelocity * Math.cos(shootAngle),
+        //     speedy: projectileVelocity * Math.sin(shootAngle),
+        //     width: playerAttackWidth,
+        //     height: playerAttackHeight,
+        //     type: "projectile",
+        // })
 
 
     }
 
     function enemyAttackTurretProperty(currentEnemy) {
 
+        let enemyProjectileX
+        let enemyProjectileY
+        let enemyProjectileSpeedX
+        let enemyProjectileSpeedY
+        let enemyProjectileWidth = 30
+        let enemyProjectileHeight = 30
+        let projectileType = "turret"
+        let projectileDamage = 20
 
+        if (currentEnemy.enemyDirection === "down") {
 
+            enemyProjectileX = currentEnemy.x + (currentEnemy.width / 3)
+            enemyProjectileY = currentEnemy.y + (currentEnemy.height / 3)
+            enemyProjectileSpeedX = 0
+            enemyProjectileSpeedY = projectileVelocity
 
+            enemyProjectiles(enemyProjectileX, enemyProjectileY, enemyProjectileSpeedX, enemyProjectileSpeedY, enemyProjectileWidth, enemyProjectileHeight, projectileType, projectileDamage)
 
-        ///let positionDifferenceBetweenPlayerAndEnemyX = currentRoom.enemies[i].x - player.x
-        ///let positionDifferenceBetweenPlayerAndEnemyY = currentRoom.enemies[i].y - player.y
+        } else if (currentEnemy.enemyDirection === "up") {
+            enemyProjectileX = currentEnemy.x + (currentEnemy.width / 3)
+            enemyProjectileY = currentEnemy.y + (currentEnemy.height / 3)
+            enemyProjectileSpeedX = 0
+            enemyProjectileSpeedY = -projectileVelocity
+
+            enemyProjectiles(enemyProjectileX, enemyProjectileY, enemyProjectileSpeedX, enemyProjectileSpeedY, enemyProjectileWidth, enemyProjectileHeight, projectileType, projectileDamage)
+
+        } else if (currentEnemy.enemyDirection === "right") {
+
+            enemyProjectileX = currentEnemy.x + (currentEnemy.width / 3)
+            enemyProjectileY = currentEnemy.y + (currentEnemy.height / 3)
+            enemyProjectileSpeedX = projectileVelocity
+            enemyProjectileSpeedY = 0
+
+            enemyProjectiles(enemyProjectileX, enemyProjectileY, enemyProjectileSpeedX, enemyProjectileSpeedY, enemyProjectileWidth, enemyProjectileHeight, projectileType, projectileDamage)
+
+        } else if (currentEnemy.enemyDirection === "left") {
+
+            enemyProjectileX = currentEnemy.x + (currentEnemy.width / 3)
+            enemyProjectileY = currentEnemy.y + (currentEnemy.height / 3)
+            enemyProjectileSpeedX = -projectileVelocity
+            enemyProjectileSpeedY = 0
+
+            enemyProjectiles(enemyProjectileX, enemyProjectileY, enemyProjectileSpeedX, enemyProjectileSpeedY, enemyProjectileWidth, enemyProjectileHeight, projectileType, projectileDamage, projectileDamage)
+        }
+
+    }
+    function enemyAttackTurretPropertyOriginal(currentEnemy) {
 
         if (currentEnemy.enemyDirection === "down") {
             enemyAttackProjectiles.push({
@@ -597,7 +866,7 @@ window.onload = function () {
                 speedy: projectileVelocity,
                 width: playerAttackWidth,
                 height: playerAttackHeight,
-                type: "projectile",
+                collisionType: "projectile",
             })
         } else if (currentEnemy.enemyDirection === "up") {
             enemyAttackProjectiles.push({
@@ -607,7 +876,7 @@ window.onload = function () {
                 speedy: -projectileVelocity,
                 width: playerAttackWidth,
                 height: playerAttackHeight,
-                type: "projectile",
+                collisionType: "projectile",
             })
         } else if (currentEnemy.enemyDirection === "right") {
             enemyAttackProjectiles.push({
@@ -617,7 +886,7 @@ window.onload = function () {
                 speedy: 0,
                 width: playerAttackWidth,
                 height: playerAttackHeight,
-                type: "projectile",
+                collisionType: "projectile",
             })
         } else if (currentEnemy.enemyDirection === "left") {
             enemyAttackProjectiles.push({
@@ -627,23 +896,206 @@ window.onload = function () {
                 speedy: 0,
                 width: playerAttackWidth,
                 height: playerAttackHeight,
-                type: "projectile",
+                collisionType: "projectile",
             })
         }
-        // enemyAttackProjectiles.push({
-        //     x: currentRoom.enemies[i].x + (currentRoom.enemies[i].width / 3),
-        //     y: currentRoom.enemies[i].y + (currentRoom.enemies[i].height / 3),
-        //     speedx: projectileVelocity * Math.cos(shootAngle),
-        //     speedy: projectileVelocity * Math.sin(shootAngle),
-        //     width: playerAttackWidth,
-        //     height: playerAttackHeight,
-        //     type: "projectile",
-        // })
+
+    }
+
+    function enemyProjectiles(x, y, speedX, speedY, width, height, type, damage) {
+        enemyAttackProjectiles.push({
+            x: x,
+            y: y,
+            speedx: speedX,
+            speedy: speedY,
+            width: width,
+            height: height,
+            collisionType: "projectile",
+            projectileType: "enemy",
+            projectileDamage: damage
+        })
 
 
 
     }
 
+
+    function enemyAttackDoubleGunnerProperty(currentEnemy) {
+
+        let enemyProjectileX
+        let enemyProjectileY
+        let enemyProjectileSpeedX
+        let enemyProjectileSpeedY
+        let enemyProjectileWidth
+        let enemyProjectileHeight
+        let projectileType = "doubleGunner"
+        let projectileDamage = 45
+
+        if (currentEnemy.enemyDirection === "down" || currentEnemy.enemyDirection === "up") {
+            enemyProjectileWidth = 75
+            enemyProjectileHeight = 150
+        } else if (currentEnemy.enemyDirection === "left" || currentEnemy.enemyDirection === "right") {
+            enemyProjectileWidth = 150
+            enemyProjectileHeight = 75
+        }
+
+        if (currentEnemy.enemyDirection === "down") {
+
+            enemyProjectileX = currentEnemy.x + (currentEnemy.width / 8)
+            enemyProjectileY = currentEnemy.y + currentEnemy.height
+            enemyProjectileSpeedX = 0
+            enemyProjectileSpeedY = projectileVelocity
+            enemyProjectiles(enemyProjectileX, enemyProjectileY, enemyProjectileSpeedX, enemyProjectileSpeedY, enemyProjectileWidth, enemyProjectileHeight, projectileType)
+
+        } else if (currentEnemy.enemyDirection === "up") {
+            enemyProjectileX = currentEnemy.x + (currentEnemy.width / 8)
+            enemyProjectileY = currentEnemy.y - enemyProjectileHeight
+            enemyProjectileSpeedX = 0
+            enemyProjectileSpeedY = -projectileVelocity
+            enemyProjectiles(enemyProjectileX, enemyProjectileY, enemyProjectileSpeedX, enemyProjectileSpeedY, enemyProjectileWidth, enemyProjectileHeight, projectileType)
+
+
+        } else if (currentEnemy.enemyDirection === "right") {
+
+            enemyProjectileX = currentEnemy.x + currentEnemy.width
+            enemyProjectileY = currentEnemy.y + (currentEnemy.height / 8)
+            enemyProjectileSpeedX = projectileVelocity
+            enemyProjectileSpeedY = 0
+            enemyProjectiles(enemyProjectileX, enemyProjectileY, enemyProjectileSpeedX, enemyProjectileSpeedY, enemyProjectileWidth, enemyProjectileHeight, projectileType)
+
+
+        } else if (currentEnemy.enemyDirection === "left") {
+
+            enemyProjectileX = currentEnemy.x - enemyProjectileWidth
+            enemyProjectileY = currentEnemy.y + (currentEnemy.height / 8)
+            enemyProjectileSpeedX = -projectileVelocity
+            enemyProjectileSpeedY = 0
+            enemyProjectiles(enemyProjectileX, enemyProjectileY, enemyProjectileSpeedX, enemyProjectileSpeedY, enemyProjectileWidth, enemyProjectileHeight, projectileType, projectileDamage)
+
+
+        }
+
+    }
+
+    var count = 0
+
+    function enemyAttackQuadrupleGunnerProperty(currentEnemy) {
+
+        count = count + 1 / 6
+
+        let enemyProjectileX
+        let enemyProjectileY
+        let enemyProjectileSpeedX
+        let enemyProjectileSpeedY
+        let enemyProjectileWidth = 30
+        let enemyProjectileHeight = 30
+        let projectileType = "quadrupleGunner"
+        let projectileDamage = 50
+        let numberOfDirections = 9
+        if (Math.floor(count % numberOfDirections) === 1) { ///top left corner
+
+            enemyProjectileX = currentEnemy.x - playerAttackWidth
+            enemyProjectileY = currentEnemy.y - playerAttackHeight
+            enemyProjectileSpeedX = -30
+            enemyProjectileSpeedY = -30
+            ///ctx.fillRect(currentRoom.enemies[0].x - playerAttackWidth, currentRoom.enemies[0].y - playerAttackHeight, 30, 30) /// top left corner
+
+        } else if (Math.floor(count % numberOfDirections) === 2) { ///top middle
+            enemyProjectileX = currentEnemy.x + (currentEnemy.width / 3)
+            enemyProjectileY = currentEnemy.y - playerAttackHeight
+            enemyProjectileSpeedX = 0
+            enemyProjectileSpeedY = -30
+            ///ctx.fillRect(currentRoom.enemies[0].x + (currentRoom.enemies[0].width / 3), currentRoom.enemies[0].y - playerAttackHeight, 30, 30) ///top center
+
+        } else if (Math.floor(count % numberOfDirections) === 3) { ///top right corner
+
+            enemyProjectileX = currentEnemy.x + currentEnemy.width
+            enemyProjectileY = currentEnemy.y - playerAttackHeight
+            enemyProjectileSpeedX = 30
+            enemyProjectileSpeedY = -30
+            ///ctx.fillRect(currentRoom.enemies[0].x + currentRoom.enemies[0].width, currentRoom.enemies[0].y - playerAttackHeight, 30, 30) /// top right corner
+
+
+        } else if (Math.floor(count % numberOfDirections) === 4) { ///middle right
+
+            enemyProjectileX = currentEnemy.x + currentEnemy.width
+            enemyProjectileY = currentEnemy.y + (currentEnemy.height / 3)
+            enemyProjectileSpeedX = 30
+            enemyProjectileSpeedY = 0
+            ///ctx.fillRect(currentRoom.enemies[0].x + currentRoom.enemies[0].width, currentRoom.enemies[0].y + (currentRoom.enemies[0].height / 3), 30, 30) ///middle right
+
+        } else if (Math.floor(count % numberOfDirections) === 5) { ///bottom right corner
+
+            enemyProjectileX = currentEnemy.x + currentEnemy.width
+            enemyProjectileY = currentEnemy.y + currentEnemy.height
+            enemyProjectileSpeedX = 30
+            enemyProjectileSpeedY = 30
+            ///ctx.fillRect(currentRoom.enemies[0].x + currentRoom.enemies[0].width, currentRoom.enemies[0].y + currentRoom.enemies[0].height, 30, 30) ///bottom right corner
+
+
+        } else if (Math.floor(count % numberOfDirections) === 6) { ///bottom middle
+
+            enemyProjectileX = currentEnemy.x + (currentEnemy.width / 3)
+            enemyProjectileY = currentEnemy.y + currentEnemy.height
+            enemyProjectileSpeedX = 0
+            enemyProjectileSpeedY = 30
+            ///ctx.fillRect(currentRoom.enemies[0].x + (currentRoom.enemies[0].width / 3), currentRoom.enemies[0].y + currentRoom.enemies[0].height, 30, 30) ///bottom center
+
+
+        } else if (Math.floor(count % numberOfDirections) === 7) { ///bottom left corner
+
+            enemyProjectileX = currentEnemy.x - playerAttackWidth
+            enemyProjectileY = currentEnemy.y + currentEnemy.height
+            enemyProjectileSpeedX = -30
+            enemyProjectileSpeedY = 30
+            ///ctx.fillRect(currentRoom.enemies[0].x - playerAttackWidth, currentRoom.enemies[0].y + currentRoom.enemies[0].height, 30, 30) ///bottom left corner
+
+        } else if (Math.floor(count % numberOfDirections) === 8) { ///middle left
+
+            enemyProjectileX = currentEnemy.x - playerAttackWidth
+            enemyProjectileY = currentEnemy.y + (currentEnemy.height / 3)
+            enemyProjectileSpeedX = -30
+            enemyProjectileSpeedY = 0
+            ///ctx.fillRect(currentRoom.enemies[0].x - playerAttackWidth, currentRoom.enemies[0].y + (currentRoom.enemies[0].height / 3), 30, 30) ///middle left
+        }
+
+
+        enemyProjectiles(enemyProjectileX, enemyProjectileY, enemyProjectileSpeedX, enemyProjectileSpeedY, enemyProjectileWidth, enemyProjectileHeight, projectileType, projectileDamage)
+        debug(enemyAttackProjectiles.length)
+    }
+
+    function enemyAttackShapeshifter(currentEnemy) {
+        var shapeshifterClock = 0
+        shapeshifterClock = shapeshifterClock + 1
+        debug(shapeshifterClock)
+        let enemyProjectileX
+        let enemyProjectileY
+        let enemyProjectileSpeedX
+        let enemyProjectileSpeedY
+        let enemyProjectileWidth = 30
+        let enemyProjectileHeight = 30
+        let projectileType = "shapeshifter"
+        let projectileDamage = 50
+
+        if(shapeshifterClock >= 1){
+
+            createEnemyObject(player.x, player.y, 50, 50, "turret", "right", 0, enemyProjectileTimeBetweenShots.turret, enemyHealth.turret)
+            
+        }
+
+
+        enemyProjectileX = currentEnemy.x + (currentEnemy.width / 3)
+        enemyProjectileY = currentEnemy.y + (currentEnemy.height / 3)
+        enemyProjectileSpeedX = 0
+        enemyProjectileSpeedY = projectileVelocity
+
+        enemyProjectiles(enemyProjectileX, enemyProjectileY, enemyProjectileSpeedX, enemyProjectileSpeedY, enemyProjectileWidth, enemyProjectileHeight, projectileType, projectileDamage)
+
+    }
+
+    function debug(text) {
+        ctx.fillText(text, 500, 500)
+    }
 
     function changeRoom(doorList) {
         for (let i = 0; i < doorList.length; i++) {
@@ -683,22 +1135,31 @@ window.onload = function () {
     }
 
     function createPlatformObject(x, y, width, height) {
-        return { x: x, y: y, width: width, height: height, type: "platform" }
+        return { x: x, y: y, width: width, height: height, collisionType: "platform" }
     }
 
-    function createEnemyObject(x, y, width, height, enemyType, enemyState, enemyDirection, shootTime, projectileTimeBetweenShots) {
-        if (enemyType in ENEMY_TYPE && enemyState in ENEMY_STATE && enemyDirection in ENEMY_DIRECTION) {
-            return { x: x, y: y, width: width, height: height, enemyType: enemyType, enemyState: enemyState, enemyDirection: enemyDirection, shootTime: shootTime, projectileTimeBetweenShots: projectileTimeBetweenShots, type: "enemy" }
+
+    function createEnemyObject(x, y, width, height, enemyType, enemyDirection, shootTime, projectileTimeBetweenShots, health) {
+        if (enemyType in ENEMY_TYPE && enemyDirection in ENEMY_DIRECTION) {
+            return { x: x, y: y, width: width, height: height, enemyType: enemyType, enemyDirection: enemyDirection, shootTime: shootTime, projectileTimeBetweenShots: projectileTimeBetweenShots, collisionType: "enemy", health: health }
         }
         //return { x: x, y: y, width: ENEMY_TYPE[enemyType].size, height: height, enemyType: enemyType, enemyState: enemyState, enemyDirection: enemyDirection, shootTime: shootTime, projectileTimeBetweenShots: projectileTimeBetweenShots }
 
     }
 
-    function createRoomObject(platformList, doorsList, enemiesList) {
+    function createInteractable(x, y, width, height, interactableType, health, collisionType, funct) {
+        if (interactableType in INTERACTABLE_TYPE) {
+            return { x: x, y: y, width: width, height: height, interactableType: interactableType, health: health, collisionType: collisionType, funct: funct }
+
+        }
+    }
+
+    function createRoomObject(platformList, doorsList, enemiesList, interactableList) {
         return {
             platforms: platformList,
             doors: doorsList,
             enemies: enemiesList,
+            interactables: interactableList,
             index: Object.keys(roomList).length //count how many rooms are in the list
         }
     }
@@ -717,7 +1178,10 @@ window.onload = function () {
             [
                 createDoor(WALL_SIDES.right, "roomTwo")
             ],
-            [] //we don't have enimies yet so this is just blank
+            [], //we don't have enimies yet so this is just blank
+            [
+                createInteractable(900, 300, interactableDetails.goopChamber.width, interactableDetails.goopChamber.height, "goopChamber", interactableDetails.goopChamber.health, "breakableObject", "n/a")
+            ]
         )
         roomList.roomTwo = createRoomObject(
             [
@@ -733,10 +1197,11 @@ window.onload = function () {
                 createDoor(WALL_SIDES.right, "roomThree"),
             ],
             [
-                createEnemyObject(900, 300, 100, 100, "soldier", "normal", "down", 0, enemyProjectileVelocity.normal),
-                createEnemyObject(300, 150, 50, 50, "turret", "calm", "down", 0, enemyProjectileVelocity.calm),
-                createEnemyObject(1600, 150, 50, 50, "turret", "enraged", "down", 0, enemyProjectileVelocity.enraged),
-            ] //no baddies
+                createEnemyObject(900, 300, 100, 100, "soldier", "down", 0, enemyProjectileTimeBetweenShots.soldier, enemyHealth.soldier),
+                createEnemyObject(300, 150, 50, 50, "turret", "down", 0, enemyProjectileTimeBetweenShots.turret, enemyHealth.turret),
+                createEnemyObject(1600, 150, 50, 50, "turret", "down", 0, enemyProjectileTimeBetweenShots.turret, enemyHealth.turret),
+            ], //no baddies
+            []
         )
         roomList.roomThree = createRoomObject(
             [
@@ -751,7 +1216,24 @@ window.onload = function () {
                 createDoor(WALL_SIDES.top, "roomFour"),
                 createDoor(WALL_SIDES.left, "roomTwo"),
             ],
-            []
+            [
+                createEnemyObject(1740, 150, 50, 50, "turret", "left", 0, enemyProjectileTimeBetweenShots.turret, enemyHealth.turret),
+                createEnemyObject(1740, 280, 50, 50, "turret", "left", 0, enemyProjectileTimeBetweenShots.turret, enemyHealth.turret),
+                createEnemyObject(1740, 410, 50, 50, "turret", "left", 0, enemyProjectileTimeBetweenShots.turret, enemyHealth.turret),
+                createEnemyObject(1740, 540, 50, 50, "turret", "left", 0, enemyProjectileTimeBetweenShots.turret, enemyHealth.turret),
+                createEnemyObject(1740, 670, 50, 50, "turret", "left", 0, enemyProjectileTimeBetweenShots.turret, enemyHealth.turret),
+                createEnemyObject(1740, 800, 50, 50, "turret", "left", 0, enemyProjectileTimeBetweenShots.turret, enemyHealth.turret),
+            ],
+            [
+                createInteractable(1500, 700, interactableDetails.goopChamber.width, interactableDetails.goopChamber.height, "goopChamber", interactableDetails.goopChamber.health, "breakableObject", "n/a"),
+                createInteractable(1500, 600, interactableDetails.goopChamber.width, interactableDetails.goopChamber.height, "goopChamber", interactableDetails.goopChamber.health, "breakableObject", "n/a"),
+                createInteractable(1500, 500, interactableDetails.goopChamber.width, interactableDetails.goopChamber.height, "goopChamber", interactableDetails.goopChamber.health, "breakableObject", "n/a"),
+                createInteractable(1500, 400, interactableDetails.goopChamber.width, interactableDetails.goopChamber.height, "goopChamber", interactableDetails.goopChamber.health, "breakableObject", "n/a"),
+                createInteractable(1500, 300, interactableDetails.goopChamber.width, interactableDetails.goopChamber.height, "goopChamber", interactableDetails.goopChamber.health, "breakableObject", "n/a"),
+                createInteractable(1500, 200, interactableDetails.goopChamber.width, interactableDetails.goopChamber.height, "goopChamber", interactableDetails.goopChamber.health, "breakableObject", "n/a"),
+                createInteractable(1500, 100, interactableDetails.goopChamber.width, interactableDetails.goopChamber.height, "goopChamber", interactableDetails.goopChamber.health, "breakableObject", "n/a"),
+                createInteractable(1500, 0, interactableDetails.goopChamber.width, interactableDetails.goopChamber.height, "goopChamber", interactableDetails.goopChamber.health, "breakableObject", "n/a"),
+            ]
         )
         roomList.roomFour = createRoomObject(
             [
@@ -762,6 +1244,7 @@ window.onload = function () {
                 createDoor(WALL_SIDES.bottom, "roomThree"),
                 createDoor(WALL_SIDES.top, "roomFive"),
             ],
+            [],
             []
 
         )
@@ -778,6 +1261,7 @@ window.onload = function () {
                 createDoor(WALL_SIDES.right, "roomSix"),
                 createDoor(WALL_SIDES.top, "roomEight"),
             ],
+            [],
             []
         )
         roomList.roomSix = createRoomObject(
@@ -798,8 +1282,9 @@ window.onload = function () {
                 createDoor(WALL_SIDES.right, "roomSeven"),
             ],
             [
-                createEnemyObject(1700, 500, 150, 150, "tank", "enraged", "left", 0, enemyProjectileVelocity.enraged)
-            ]
+                createEnemyObject(1700, 500, 150, 150, "doubleGunner", "left", 0, enemyProjectileTimeBetweenShots.doubleGunner, enemyHealth.doubleGunner)
+            ],
+            []
         )
         roomList.roomSeven = createRoomObject(
             [
@@ -812,6 +1297,7 @@ window.onload = function () {
             [
                 createDoor(WALL_SIDES.left, "roomSix")
             ],
+            [],
             []
         )
         roomList.roomEight = createRoomObject(
@@ -831,6 +1317,9 @@ window.onload = function () {
                 createDoor(WALL_SIDES.right, "bossRoom"),
                 createDoor(WALL_SIDES.top, "roomTen"),
             ],
+            [
+                createEnemyObject(950, 400, 100, 100, "quadrupleGunner", "down", 0, enemyProjectileTimeBetweenShots.quadrupleGunner, enemyHealth.quadrupleGunner)
+            ],
             []
         )
         roomList.roomNine = createRoomObject(
@@ -843,6 +1332,9 @@ window.onload = function () {
             ],
             [
                 createDoor(WALL_SIDES.right, "roomEight"),
+            ],
+            [
+                createEnemyObject(950, 400, 100, 100, "shapeshifter", "down", 0, enemyProjectileTimeBetweenShots.shapeshifter, enemyHealth.shapeshifter)
             ],
             []
         )
@@ -859,7 +1351,8 @@ window.onload = function () {
                 createDoor(WALL_SIDES.bottom, "roomEight"),
                 createDoor(WALL_SIDES.right, "roomEleven")
             ],
-            []
+            [],
+            [],
         )
         roomList.roomEleven = createRoomObject(
             [
@@ -875,7 +1368,11 @@ window.onload = function () {
             [
                 createDoor(WALL_SIDES.left, "roomTen")
             ],
-            []
+            [],
+            [
+                createInteractable(1100, 500, interactableDetails.button.width, interactableDetails.button.height, "button", interactableDetails.button.health, "button", "unpushed"),
+                createInteractable(1100, 300, interactableDetails.medkit.width, interactableDetails.medkit.height, "medkit", interactableDetails.medkit.health, "medkit", "n/a"),
+            ]
         )
         roomList.bossRoom = createRoomObject(
             [
@@ -890,8 +1387,9 @@ window.onload = function () {
                 createDoor(WALL_SIDES.left, "roomEight")
             ],
             [
-                createEnemyObject(850, 100, 300, 280, "boss", "enraged", "down", 0, enemyProjectileVelocity.enraged)
-            ]
+                createEnemyObject(850, 100, 300, 280, "boss", "down", 0, enemyProjectileTimeBetweenShots.boss, enemyHealth.boss)
+            ],
+            []
         )
     }
 
@@ -909,6 +1407,27 @@ window.onload = function () {
             resetVariables()
         }
     }
+
+    function healthBar(object, maxHealth) {
+
+        if (object.collisionType === "player" || (object.collisionType === "enemy" && object.health < maxHealth) || (object.collisionType === "breakableObject" && object.health < maxHealth)) {
+            var healthBarHeight = 10
+            ctx.fillStyle = "red"
+            ctx.fillRect(object.x, object.y - healthBarHeight, object.width * (object.health / maxHealth), healthBarHeight)
+            ctx.fillStyle = "grey"
+            ctx.strokeRect(object.x, object.y - healthBarHeight, object.width, healthBarHeight)
+        }
+        // else if(object.collisionType === "player"){
+        //     var healthBarHeight = 70
+        //     ctx.fillStyle = "red"
+        //     ctx.fillRect(80, 940, 1050 * (object.health / maxHealth), healthBarHeight)
+        //     ctx.fillStyle = "grey"
+        //     ctx.strokeRect(80, 940, 1050, healthBarHeight)
+        // }
+
+
+    }
+
 
     function resetVariables() {
         currentRoom = roomList.roomOne
@@ -931,6 +1450,7 @@ window.onload = function () {
         for (var i = 0; i < playerAttack.length; i++) {
             playerAttack.splice(i, playerAttack.length)
         }
+
 
 
     }

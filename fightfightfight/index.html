@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>fightfightfight</title>
+  <link rel="icon" type="image/x-icon" href="https://static.wikia.nocookie.net/scrimblo/images/8/8e/The_og_scrimblo.png/revision/latest?cb=20240727183830">
+  <script src="fightCodeCopy.js"></script>
+  <style>
+    #character1 {
+      display: none;
+    }
+
+    #character2 {
+      transform: scaleX(-1);
+      display: none;
+    }
+
+    #hitboxLchr1 {
+      width: 175px;
+      height: 80px;
+      position: absolute;
+      top: 480px;
+      left: 350px;
+      border-style: dashed;
+      border-color: rgb(11, 255, 23);
+    }
+
+    #hitboxMchr1 {
+      width: 200px;
+      height: 150px;
+      position: absolute;
+      top: 470px;
+      left: 350px;
+      border-style: dashed;
+      border-color: rgb(255, 178, 11);
+    }
+
+    #hitboxHchr1 {
+      width: 270px;
+      height: 240px;
+      position: absolute;
+      top: 430px;
+      left: 350px;
+      border-style: dashed;
+      border-color: rgb(255, 19, 11);
+
+    }
+
+    #hitboxLchr2 {
+      width: 175px;
+      height: 80px;
+      position: absolute;
+      top: 480px;
+      left: 950px;
+      border-style: dashed;
+      border-color: rgb(11, 255, 23);
+      opacity: 0;
+    }
+
+    #hitboxMchr2 {
+      width: 200px;
+      height: 150px;
+      position: absolute;
+      top: 470px;
+      left: 925px;
+      border-style: dashed;
+      border-color: rgb(255, 178, 11);
+      opacity: 0;
+    }
+
+    #hitboxHchr2 {
+      width: 360px;
+      height: 100px;
+      position: absolute;
+      top: 490px;
+      left: 765px;
+      border-style: dashed;
+      border-color: rgb(255, 19, 11);
+      opacity: 0;
+    }
+  </style>
+
+
+</head>
+
+<body>
+
+  <canvas id="canvas" height="970" width="2000"></canvas>
+
+  <div id="hitboxLchr1"> </div>
+  <div id="hitboxMchr1"> </div>
+  <div id="hitboxHchr1"> </div>
+  <div id="hitboxLchr2"> </div>
+  <div id="hitboxMchr2"> </div>
+  <div id="hitboxHchr2"> </div>
+  <img id="character1" src="dannytempsprites.png">
+  <img id="character2" src="waneidletestsprites.png">
+
+
+</body>
+
+</html>
